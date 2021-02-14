@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1>Redis Chat</h1>
+    <div id="messages">
+        <input id="message" type="text" name="message" placeholder="Message" />
+        <br />
+        <br />
+        <button onClick="emitData()">Send</button>
+    </div>
+
+    <div id="joined"></div>
+
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io("http://localhost:5000");
+
+    function emitData() {
+        const message = document.querySelector("#message").value;
+        if (message.length > 0) {
+            socket.emit("message", { message, from: "<%= username %>" });
+        }
+    }
+
+    socket.on("message", ({ from, message }) => {
+        const messageElement = document.createElement("h5");
+        messageElement.innerText = `${from}: ${message}`;
+        document.querySelector("#messages").appendChild(messageElement);
+    });
+
+    socket.on("joined", username => {
+        const element = document.createElement("h5");
+        element.innerText = `${username} has joined`;
+
+        document.querySelector("#joined").appendChild(element);
+    });
+</script>
+</html>
